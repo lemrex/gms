@@ -3,24 +3,34 @@ name: CI/CD to Huawei SWR and CCE
 on:
   push:
     branches:
-      - main  # Trigger CI/CD when code is pushed to the 'master' branch
+      - master  
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Install kubectl v1.21
+        run: |
+          curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.21.0/bin/linux/amd64/kubectl
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+        
       - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Configure kubectl for Huawei Cloud CCE
-        run: |
-          sudo mkdir -p $HOME/.kube
-          sudo chown -R runner:runner $HOME/.kube
-          export KUBECONFIG=$HOME/.kube/config
-          echo "${{ secrets.KUBE_CONFIG_DATA }}" > $KUBECONFIG 
+        
+      - name: get CCE Cluster Credentials
+        uses: huaweicloud/cce-credential-action@v1.0.1
+        with:
+          ak: ${{ secrets.ACCESSKEY }}
+          sk: ${{ secrets.SECRETACCESSKEY }}
+          region: "ap-southeast-3"
+          project_id: "eecc7ec81ad346adbcde0a07fa343cb0"
+          cluster_id: "2e43fe12-1906-11ef-abd5-0255ac100039"
+          #project_id: "3e7cb44b-4b49-43b5-93df-d78f8a24e2dc"
+          
       - name: Debugging
         run: |
-          kubectl version
           kubectl cluster-info
           kubectl get nodes
 
