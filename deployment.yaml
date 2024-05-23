@@ -1,39 +1,958 @@
-kind: Config
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currencyservice
+  labels:
+    app: currencyservice
+spec:
+  selector:
+    matchLabels:
+      app: currencyservice
+  template:
+    metadata:
+      labels:
+        app: currencyservice
+    spec:
+      serviceAccountName: currencyservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/currencyservice:v0.10.0
+        ports:
+        - name: grpc
+          containerPort: 7000
+        env:
+        - name: PORT
+          value: "7000"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          grpc:
+            port: 7000
+        livenessProbe:
+          grpc:
+            port: 7000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
 apiVersion: v1
-preferences: {}
-clusters:
-  - name: internalCluster
-    cluster:
-      server: 'https://192.168.0.180:5443'
-      certificate-authority-data: >-
-        LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUREekNDQWZlZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFwTVJrd0Z3WURWUVFLRXhCRFEwVWcKVkdWamFHNXZiRzluYVdWek1Rd3dDZ1lEVlFRREV3TkRRMFV3SGhjTk1qUXdOVEl6TVRNeE5ETTBXaGNOTkRRdwpOVEl6TVRNeE5ETTBXakFwTVJrd0Z3WURWUVFLRXhCRFEwVWdWR1ZqYUc1dmJHOW5hV1Z6TVF3d0NnWURWUVFECkV3TkRRMFV3Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRREZwM3g0dm4zd280WEMKaUovS2twZlEzbGlHYzYwNXJxdThlUy9JS3l4MHBNVDFIdVRZZ0tzSkxjdDd0S21VMStsQUNjdHgzM3RiSmh5WQphd1NPb0FQYzJlNHZaaGpuc0FiYTJDUmRxOUl6L3BTMEtKVFQ3U1ZvdVJYaHM4ZlRhK2lVbExaNWx6VVJzWXRFCmpoZzJRS2I3TjNiVEhiWXNyZlBkYlM5NUZLSHJZekJNSS9Hd29oRjZlSEMxRlVscXJnM05GZFR2UE9lV3VaOUYKRWkwWGpuM0JTWi9lNno1U1FXeEFkYnFHZ0dVL0lkOXVJbkUwVFFEL01JWDJEMEkwcHluY2FwR3pQUU5OSWlvRQpOSkxXeVNxRFFyVzFHQ0NCZUZidmJDVTBFaVlLb2ZUcjdwRVNYWTdWY2pmS3h4TVRleDA0dEFrdlJYOUtGTjcwCkJtUitUdXlyQWdNQkFBR2pRakJBTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQQmdOVkhSTUJBZjhFQlRBREFRSC8KTUIwR0ExVWREZ1FXQkJRRUY3KzdqSGN2UklTdHBORVlwOTBRTS9xaXlEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQwpBUUVBQTlLMWNWRk5WQytOUVhvM2kwL0h0MnptMG5lRnBaazNNS2w5MzV0clZ3SGI5d1F0NVJZTGRES1NVRVVHClVXYStzVU9sa2ZvajlwKys3R3ZBVFhMdTIwbkdveUJ5RlYyamxWc3JvYnI0Z2dDMkcvUEM1TmI5OG5ubGxLL3QKMlM0SmpoN2xLR3U2bUhvN1Rwdk9hSUFsZUwzU0lkaFBCY1hYSVZGdDFRQW9GOEczK1FkWXE4eGpUZ05jWDhEQgp6ZTRONkh6enV1RExybW5VNHJ1R2NMa1I2RVNzS1ViTzVtbVBxRzQ2bEFqQ3VHWGNjeHpwMktzamgxN1hpdDlmCmZwOUc2MHgyNTZnQUJGZE0yZ1VJbEFWMzAvT2pJOWlOMmlXOUVkK3lMLys2amZvK1EwWGF2STZWbWpSSEtXb3cKN05ROXUrT2NKSlJ6TUJQcEliYmpTZXBwYWc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
-  - name: externalCluster
-    cluster:
-      server: 'https://124.243.149.196:5443'
-      insecure-skip-tls-verify: true
-  - name: externalClusterTLSVerify
-    cluster:
-      server: 'https://124.243.149.196:5443'
-      certificate-authority-data: >-
-        LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUREekNDQWZlZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFwTVJrd0Z3WURWUVFLRXhCRFEwVWcKVkdWamFHNXZiRzluYVdWek1Rd3dDZ1lEVlFRREV3TkRRMFV3SGhjTk1qUXdOVEl6TVRNeE5ETTBXaGNOTkRRdwpOVEl6TVRNeE5ETTBXakFwTVJrd0Z3WURWUVFLRXhCRFEwVWdWR1ZqYUc1dmJHOW5hV1Z6TVF3d0NnWURWUVFECkV3TkRRMFV3Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRREZwM3g0dm4zd280WEMKaUovS2twZlEzbGlHYzYwNXJxdThlUy9JS3l4MHBNVDFIdVRZZ0tzSkxjdDd0S21VMStsQUNjdHgzM3RiSmh5WQphd1NPb0FQYzJlNHZaaGpuc0FiYTJDUmRxOUl6L3BTMEtKVFQ3U1ZvdVJYaHM4ZlRhK2lVbExaNWx6VVJzWXRFCmpoZzJRS2I3TjNiVEhiWXNyZlBkYlM5NUZLSHJZekJNSS9Hd29oRjZlSEMxRlVscXJnM05GZFR2UE9lV3VaOUYKRWkwWGpuM0JTWi9lNno1U1FXeEFkYnFHZ0dVL0lkOXVJbkUwVFFEL01JWDJEMEkwcHluY2FwR3pQUU5OSWlvRQpOSkxXeVNxRFFyVzFHQ0NCZUZidmJDVTBFaVlLb2ZUcjdwRVNYWTdWY2pmS3h4TVRleDA0dEFrdlJYOUtGTjcwCkJtUitUdXlyQWdNQkFBR2pRakJBTUE0R0ExVWREd0VCL3dRRUF3SUNwREFQQmdOVkhSTUJBZjhFQlRBREFRSC8KTUIwR0ExVWREZ1FXQkJRRUY3KzdqSGN2UklTdHBORVlwOTBRTS9xaXlEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQwpBUUVBQTlLMWNWRk5WQytOUVhvM2kwL0h0MnptMG5lRnBaazNNS2w5MzV0clZ3SGI5d1F0NVJZTGRES1NVRVVHClVXYStzVU9sa2ZvajlwKys3R3ZBVFhMdTIwbkdveUJ5RlYyamxWc3JvYnI0Z2dDMkcvUEM1TmI5OG5ubGxLL3QKMlM0SmpoN2xLR3U2bUhvN1Rwdk9hSUFsZUwzU0lkaFBCY1hYSVZGdDFRQW9GOEczK1FkWXE4eGpUZ05jWDhEQgp6ZTRONkh6enV1RExybW5VNHJ1R2NMa1I2RVNzS1ViTzVtbVBxRzQ2bEFqQ3VHWGNjeHpwMktzamgxN1hpdDlmCmZwOUc2MHgyNTZnQUJGZE0yZ1VJbEFWMzAvT2pJOWlOMmlXOUVkK3lMLys2amZvK1EwWGF2STZWbWpSSEtXb3cKN05ROXUrT2NKSlJ6TUJQcEliYmpTZXBwYWc9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
-users:
-  - name: user
-    user:
-      client-certificate-data: >-
-        LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURsVENDQW4yZ0F3SUJBZ0lJUm5zeGtQWVN3RFV3RFFZSktvWklodmNOQVFFTEJRQXdLVEVaTUJjR0ExVUUKQ2hNUVEwTkZJRlJsWTJodWIyeHZaMmxsY3pFTU1Bb0dBMVVFQXhNRFEwTkZNQjRYRFRJME1EVXlNekUyTWpFdwpNMW9YRFRJNU1EVXlNekUyTWpFd00xb3dnYUV4ZERBUUJnTlZCQW9UQ1dOalpUcDFjMlZ5Y3pBbkJnTlZCQW9UCklHVXlNbUZqWlRWaE1EZzRPVFJrTXpKaU5HWmhNRFptTlRGa01UQTJZakJpTURjR0ExVUVDaE13WkRVd1pEWmoKTm1FNU5tSTBOREF6WVdJMk5UQTJNMkU0WXpRMll6Y3hNMlF0WTJWeWRDMHhOekUyTkRneE1qWXlNU2t3SndZRApWUVFERXlCa05UQmtObU0yWVRrMllqUTBNRE5oWWpZMU1EWXpZVGhqTkRaak56RXpaRENDQVNJd0RRWUpLb1pJCmh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTVduZkhpK2ZmQ2poY0tJbjhxU2w5RGVXSVp6clRtdXE3eDUKTDhnckxIU2t4UFVlNU5pQXF3a3R5M3UwcVpUWDZVQUp5M0hmZTFzbUhKaHJCSTZnQTl6WjdpOW1HT2V3QnRyWQpKRjJyMGpQK2xMUW9sTlB0SldpNUZlR3p4OU5yNkpTVXRubVhOUkd4aTBTT0dEWkFwdnMzZHRNZHRpeXQ4OTF0Ckwza1VvZXRqTUV3ajhiQ2lFWHA0Y0xVVlNXcXVEYzBWMU84ODU1YTVuMFVTTFJlT2ZjRkpuOTdyUGxKQmJFQjEKdW9hQVpUOGgzMjRpY1RSTkFQOHdoZllQUWpTbktkeHFrYk05QTAwaUtnUTBrdGJKS29OQ3RiVVlJSUY0VnU5cwpKVFFTSmdxaDlPdnVrUkpkanRWeU44ckhFeE43SFRpMENTOUZmMG9VM3ZRR1pINU83S3NDQXdFQUFhTklNRVl3CkRnWURWUjBQQVFIL0JBUURBZ1dnTUJNR0ExVWRKUVFNTUFvR0NDc0dBUVVGQndNQ01COEdBMVVkSXdRWU1CYUEKRkFRWHY3dU1keTlFaEsyazBSaW4zUkF6K3FMSU1BMEdDU3FHU0liM0RRRUJDd1VBQTRJQkFRQWpjTUE2MUprWApMOXBFaXFJeXdreHVjMjJQcmZqVUlCeXlwYjlabXgyTzZyK1NZNmUxL0xiYkpxaHVJUVdPdHRieEs3RHhpZXVIClRSa2RSWEUwUmtBMER4SUpCZU54ZGZST0loaHRBMzN5d3JWRnVaK0tJVFlsM1hiMjFRTG5wd2RSOEhURmhaTGEKUmJoNlBLNmgzQmo4ZnB0Y3JKTnVmMjJlcVQyRWlJL3E0RnBTN1hteXpiRnllcHdqcWVYSjFIWExPUmJNNDRCdAp4Vmh5TEpHdko0aU1ibzBmRHdydTArZlFtalRGelExTEZleXVqVGZnM0NFVkNQUVdMQ1RFakVaNWhSOERSUjJFCjFRMEw5SGJrbHRML2lXbE9WMkR4WDQ3ZHMvWWUyMitJUGtveFViQnB2VXJKRC94OWsvcEYxcWI3V280ak9XdEUKR0Q2L0wyTUlzNmFUCi0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
-      client-key-data: >-
-        LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcGdJQkFBS0NBUUVBeGFkOGVMNTk4S09Gd29pZnlwS1gwTjVZaG5PdE9hNnJ2SGt2eUNzc2RLVEU5UjdrCjJJQ3JDUzNMZTdTcGxOZnBRQW5MY2Q5N1d5WWNtR3NFanFBRDNObnVMMllZNTdBRzJ0Z2tYYXZTTS82VXRDaVUKMCswbGFMa1Y0YlBIMDJ2b2xKUzJlWmMxRWJHTFJJNFlOa0NtK3pkMjB4MjJMSzN6M1cwdmVSU2g2Mk13VENQeApzS0lSZW5od3RSVkphcTROelJYVTd6em5scm1mUlJJdEY0NTl3VW1mM3VzK1VrRnNRSFc2aG9CbFB5SGZiaUp4Ck5FMEEvekNGOWc5Q05LY3AzR3FSc3owRFRTSXFCRFNTMXNrcWcwSzF0UmdnZ1hoVzcyd2xOQkltQ3FIMDYrNlIKRWwyTzFYSTN5c2NURTNzZE9MUUpMMFYvU2hUZTlBWmtmazdzcXdJREFRQUJBb0lCQVFDNktxYnlrM25MemptTwpvV0RnVEhMeUtIcjVLTHRnT1VWSW9GeUJEU2t5TkgvTzRPcHJnY1dYUDZzSk9ZRUEwTnpCbEhncktYUG14bDdvCnNPUDU4bjJ3NXhPUlVYamp3TWkwR0NFb21VM0Q2MlhreXRSalNGcVQ2TURUZGFJaFlPSVFFSUpPeEQwWURVSS8Kc0JiZUFzZEVsMWswUUNmMnJXR2tqZExKR01YcURqc1A3TWZ4WDE3SjlSYy9FR3RmYTVaQVFnTHliZjByd0V4awpiNmZBY29Nb0Y3b0lxQUdDMTlra3diaXdqMzczcVpPUndCdVdZQzVVVUdkZVMxcmdDMzlBVGE5Q0ZJR2RubEUyClVUd1h6blQ2cjdVbmxzclhXOGpZeFRjSk1YeURjN2ZocU45SkZVN3duMmtNRlg5OUlScjBrZEJ0c2hTOG9lZFkKa09vVWtiVUJBb0dCQU9HNkpWajc4d0FYWVdSRTFtMzZIR3d3MUhtcjN4bmtYaFB6ajVMQnRSS0lqVHNtbGpragpRaHFtc2ZFMFJ1eUcyOEUwYlBDK0pvYm1MZkJHR3ErSzl5eTJJVlhORmR3QUxDWGNDSzZiNndxNEpaekQxaCtmClgvRjlpTjYrTGI4VzdQeFFrRTJFVDdOUmV5MlN4cXk5aWVpUmxTY0puODkzZzBDVHhKM1AxclM5QW9HQkFPQXAKaEtzcENwSlgvaGdJa1BaUWZZQ0VJa250Q0t1L282T1Z2WG5qRSszMjdxNmpmT3lXUmpRRkprVE1ydHRMYWswNQpmcU1CZzhEaGFNcFFEMml0eG11RU1TWVJxcWV3b0o4VC9UdklLVkdGcjYxN2ZrK0ZzMmJ6d1BoZDFndXhTTEsyClRqT3dFMVRyODN1am91eEwvSVRhYlV1RmxrZy9LbHBSYk9WeW9tR0hBb0dCQU5ncWRHT3YvRGtGS3U1a0FkbVcKSUt2M1l6TVZ4ZlM4dnQ5cWF2OEc1RW5ZWFMvZE54V0d6MkpJYXJYcjgxUEZuaU42K2l6ZVhIVHBiK3JlcCtXZQpOakVxUmVndUc1WHcwRlo5VGc4eEg3akhPclhTMFhhOUlKdGFOYjNoOEZ0RU1EVTlUY1ArUm5rYU9kVWQ3NGN6CmlDTWhiKzNQaUt5YzdpUGtudkRtUGQ0ZEFvR0JBSW1zbGtIMVcvdlR0VWlYZ2tqMTJJN2xHSllrMGMyQ1R3TzYKaFB2bVhxZ3BvQ0I4WXM1LzRUQXo5WFFON2xyYmI3ZHNWMzNRQVZhbVdwRGZLUWVXcXlYL3M1djQvOElzTmdwZAo0WXNrL1ZPSGN3VnVzbjR1MUtlbmo5NDY2NnFVd055YUlWK1hoZGdEYnJDQ0tSOU44Qks4Z0tJQXN2TStjRW0yCmR0WlpXS2ZqQW9HQkFOT20vU3FENXpkdlhpYVFMZXZHUDVkeERGejBHd1pHT3h1N2dJMEtrRlNHWXNNK2Y1TGYKTmpsTDRkSUMvRHYzZEpIck42YXN6czVoekNXWndiWnpieTNUeDQ1SmNoRzlHb3hvUGg5bUsvcXQ1Z3V5SUhPZgpSVVYzanBVTVBhN21xWHJCeHQ1eXhkSWliMW9mODBhbDV6VXRNZy9EZ21jZ0lMWVFnaWNSTUtENgotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
-contexts:
-  - name: internal
-    context:
-      cluster: internalCluster
-      user: user
-  - name: external
-    context:
-      cluster: externalCluster
-      user: user
-  - name: externalTLSVerify
-    context:
-      cluster: externalClusterTLSVerify
-      user: user
-current-context: external
+kind: Service
+metadata:
+  name: currencyservice
+  labels:
+    app: currencyservice
+spec:
+  type: ClusterIP
+  selector:
+    app: currencyservice
+  ports:
+  - name: grpc
+    port: 7000
+    targetPort: 7000
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: currencyservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgenerator
+  labels:
+    app: loadgenerator
+spec:
+  selector:
+    matchLabels:
+      app: loadgenerator
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: loadgenerator
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: loadgenerator
+      terminationGracePeriodSeconds: 5
+      restartPolicy: Always
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      initContainers:
+      - command:
+        - /bin/sh
+        - -exc
+        - |
+          MAX_RETRIES=12
+          RETRY_INTERVAL=10
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Attempt $i: Pinging frontend: ${FRONTEND_ADDR}..."
+            STATUSCODE=$(wget --server-response http://${FRONTEND_ADDR} 2>&1 | awk '/^  HTTP/{print $2}')
+            if [ $STATUSCODE -eq 200 ]; then
+                echo "Frontend is reachable."
+                exit 0
+            fi
+            echo "Error: Could not reach frontend - Status code: ${STATUSCODE}"
+            sleep $RETRY_INTERVAL
+          done
+          echo "Failed to reach frontend after $MAX_RETRIES attempts."
+          exit 1
+        name: frontend-check
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: busybox:latest
+        env:
+        - name: FRONTEND_ADDR
+          value: "frontend:80"
+      containers:
+      - name: main
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/loadgenerator:v0.10.0
+        env:
+        - name: FRONTEND_ADDR
+          value: "frontend:80"
+        - name: USERS
+          value: "10"
+        resources:
+          requests:
+            cpu: 300m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: loadgenerator
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productcatalogservice
+  labels:
+    app: productcatalogservice
+spec:
+  selector:
+    matchLabels:
+      app: productcatalogservice
+  template:
+    metadata:
+      labels:
+        app: productcatalogservice
+    spec:
+      serviceAccountName: productcatalogservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/productcatalogservice:v0.10.0
+        ports:
+        - containerPort: 3550
+        env:
+        - name: PORT
+          value: "3550"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          grpc:
+            port: 3550
+        livenessProbe:
+          grpc:
+            port: 3550
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productcatalogservice
+  labels:
+    app: productcatalogservice
+spec:
+  type: ClusterIP
+  selector:
+    app: productcatalogservice
+  ports:
+  - name: grpc
+    port: 3550
+    targetPort: 3550
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: productcatalogservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkoutservice
+  labels:
+    app: checkoutservice
+spec:
+  selector:
+    matchLabels:
+      app: checkoutservice
+  template:
+    metadata:
+      labels:
+        app: checkoutservice
+    spec:
+      serviceAccountName: checkoutservice
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: server
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+          image: gcr.io/google-samples/microservices-demo/checkoutservice:v0.10.0
+          ports:
+          - containerPort: 5050
+          readinessProbe:
+            grpc:
+              port: 5050
+          livenessProbe:
+            grpc:
+              port: 5050
+          env:
+          - name: PORT
+            value: "5050"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "productcatalogservice:3550"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shippingservice:50051"
+          - name: PAYMENT_SERVICE_ADDR
+            value: "paymentservice:50051"
+          - name: EMAIL_SERVICE_ADDR
+            value: "emailservice:5000"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currencyservice:7000"
+          - name: CART_SERVICE_ADDR
+            value: "cartservice:7070"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkoutservice
+  labels:
+    app: checkoutservice
+spec:
+  type: ClusterIP
+  selector:
+    app: checkoutservice
+  ports:
+  - name: grpc
+    port: 5050
+    targetPort: 5050
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: checkoutservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shippingservice
+  labels:
+    app: shippingservice
+spec:
+  selector:
+    matchLabels:
+      app: shippingservice
+  template:
+    metadata:
+      labels:
+        app: shippingservice
+    spec:
+      serviceAccountName: shippingservice
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/shippingservice:v0.10.0
+        ports:
+        - containerPort: 50051
+        env:
+        - name: PORT
+          value: "50051"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          periodSeconds: 5
+          grpc:
+            port: 50051
+        livenessProbe:
+          grpc:
+            port: 50051
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shippingservice
+  labels:
+    app: shippingservice
+spec:
+  type: ClusterIP
+  selector:
+    app: shippingservice
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: shippingservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartservice
+  labels:
+    app: cartservice
+spec:
+  selector:
+    matchLabels:
+      app: cartservice
+  template:
+    metadata:
+      labels:
+        app: cartservice
+    spec:
+      serviceAccountName: cartservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/cartservice:v0.10.0
+        ports:
+        - containerPort: 7070
+        env:
+        - name: REDIS_ADDR
+          value: "redis-cart:6379"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 128Mi
+        readinessProbe:
+          initialDelaySeconds: 15
+          grpc:
+            port: 7070
+        livenessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          grpc:
+            port: 7070
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartservice
+  labels:
+    app: cartservice
+spec:
+  type: ClusterIP
+  selector:
+    app: cartservice
+  ports:
+  - name: grpc
+    port: 7070
+    targetPort: 7070
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cartservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cart
+  labels:
+    app: redis-cart
+spec:
+  selector:
+    matchLabels:
+      app: redis-cart
+  template:
+    metadata:
+      labels:
+        app: redis-cart
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: redis
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+        readinessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: 6379
+        livenessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: 6379
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: 125m
+          requests:
+            cpu: 70m
+            memory: 200Mi
+      volumes:
+      - name: redis-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cart
+  labels:
+    app: redis-cart
+spec:
+  type: ClusterIP
+  selector:
+    app: redis-cart
+  ports:
+  - name: tcp-redis
+    port: 6379
+    targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailservice
+  labels:
+    app: emailservice
+spec:
+  selector:
+    matchLabels:
+      app: emailservice
+  template:
+    metadata:
+      labels:
+        app: emailservice
+    spec:
+      serviceAccountName: emailservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/emailservice:v0.10.0
+        ports:
+        - containerPort: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          periodSeconds: 5
+          grpc:
+            port: 8080
+        livenessProbe:
+          periodSeconds: 5
+          grpc:
+            port: 8080
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emailservice
+  labels:
+    app: emailservice
+spec:
+  type: ClusterIP
+  selector:
+    app: emailservice
+  ports:
+  - name: grpc
+    port: 5000
+    targetPort: 8080
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: emailservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentservice
+  labels:
+    app: paymentservice
+spec:
+  selector:
+    matchLabels:
+      app: paymentservice
+  template:
+    metadata:
+      labels:
+        app: paymentservice
+    spec:
+      serviceAccountName: paymentservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/paymentservice:v0.10.0
+        ports:
+        - containerPort: 50051
+        env:
+        - name: PORT
+          value: "50051"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          grpc:
+            port: 50051
+        livenessProbe:
+          grpc:
+            port: 50051
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paymentservice
+  labels:
+    app: paymentservice
+spec:
+  type: ClusterIP
+  selector:
+    app: paymentservice
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: paymentservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: frontend
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+        - name: server
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+          image: gcr.io/google-samples/microservices-demo/frontend:v0.10.0
+          ports:
+          - containerPort: 8080
+          readinessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-readiness-probe"
+          livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: 8080
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+          env:
+          - name: PORT
+            value: "8080"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "productcatalogservice:3550"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currencyservice:7000"
+          - name: CART_SERVICE_ADDR
+            value: "cartservice:7070"
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: "recommendationservice:8080"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shippingservice:50051"
+          - name: CHECKOUT_SERVICE_ADDR
+            value: "checkoutservice:5050"
+          - name: AD_SERVICE_ADDR
+            value: "adservice:9555"
+          - name: SHOPPING_ASSISTANT_SERVICE_ADDR
+            value: "shoppingassistantservice:80"
+          # # ENV_PLATFORM: One of: local, gcp, aws, azure, onprem, alibaba
+          # # When not set, defaults to "local" unless running in GKE, otherwies auto-sets to gcp
+          # - name: ENV_PLATFORM
+          #   value: "aws"
+          - name: ENABLE_PROFILER
+            value: "0"
+          # - name: CYMBAL_BRANDING
+          #   value: "true"
+          # - name: ENABLE_ASSISTANT
+          #   value: "true"
+          # - name: FRONTEND_MESSAGE
+          #   value: "Replace this with a message you want to display on all pages."
+          # As part of an optional Google Cloud demo, you can run an optional microservice called the "packaging service".
+          # - name: PACKAGING_SERVICE_URL
+          #   value: "" # This value would look like "http://123.123.123"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  type: ClusterIP
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-external
+  labels:
+    app: frontend
+spec:
+  type: LoadBalancer
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: 8080
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendationservice
+  labels:
+    app: recommendationservice
+spec:
+  selector:
+    matchLabels:
+      app: recommendationservice
+  template:
+    metadata:
+      labels:
+        app: recommendationservice
+    spec:
+      serviceAccountName: recommendationservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.10.0
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          periodSeconds: 5
+          grpc:
+            port: 8080
+        livenessProbe:
+          periodSeconds: 5
+          grpc:
+            port: 8080
+        env:
+        - name: PORT
+          value: "8080"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "productcatalogservice:3550"
+        - name: DISABLE_PROFILER
+          value: "1"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 220Mi
+          limits:
+            cpu: 200m
+            memory: 450Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendationservice
+  labels:
+    app: recommendationservice
+spec:
+  type: ClusterIP
+  selector:
+    app: recommendationservice
+  ports:
+  - name: grpc
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: recommendationservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adservice
+  labels:
+    app: adservice
+spec:
+  selector:
+    matchLabels:
+      app: adservice
+  template:
+    metadata:
+      labels:
+        app: adservice
+    spec:
+      serviceAccountName: adservice
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        fsGroup: 1000
+        runAsGroup: 1000
+        runAsNonRoot: true
+        runAsUser: 1000
+      containers:
+      - name: server
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+              - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+        image: gcr.io/google-samples/microservices-demo/adservice:v0.10.0
+        ports:
+        - containerPort: 9555
+        env:
+        - name: PORT
+          value: "9555"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 180Mi
+          limits:
+            cpu: 300m
+            memory: 300Mi
+        readinessProbe:
+          initialDelaySeconds: 20
+          periodSeconds: 15
+          grpc:
+            port: 9555
+        livenessProbe:
+          initialDelaySeconds: 20
+          periodSeconds: 15
+          grpc:
+            port: 9555
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adservice
+  labels:
+    app: adservice
+spec:
+  type: ClusterIP
+  selector:
+    app: adservice
+  ports:
+  - name: grpc
+    port: 9555
+    targetPort: 9555
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: adservice
